@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Appointment Tracking Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page-shell">
+    <section class="section-block dashboard-sticky" aria-labelledby="kpiTitle">
+      <div class="section-heading">
+        <div>
+          <h2 id="kpiTitle">Patient Appointment Tracking Dashboard</h2>
+        </div>
+      </div>
+      <div id="kpiCards" class="kpi-grid"></div>
+    </section>
+
+    <section class="section-block accordion-section" aria-labelledby="filtersTitle">
+      <button class="accordion-trigger" type="button" aria-expanded="false" aria-controls="filtersPanel">
+        <span class="accordion-title">
+          <span id="filtersTitle">Filters and Search</span>
+          <span>Search by HN, patient name, phone number, or appointment ID.</span>
+        </span>
+        <span class="accordion-icon" aria-hidden="true">v</span>
+      </button>
+      <div id="filtersPanel" class="accordion-panel" hidden>
+        <div class="filter-actions">
+          <button class="secondary-button" type="button" onclick="resetFilters()">Reset Filters</button>
+        </div>
+
+        <form class="filters-grid" onsubmit="return false;">
+          <label>
+            Search
+            <input id="searchInput" type="search" placeholder="HN, patient, phone, appointment ID">
+          </label>
+
+          <label>
+            From Date
+            <input id="fromDateFilter" type="date">
+          </label>
+
+          <label>
+            To Date
+            <input id="toDateFilter" type="date">
+          </label>
+
+          <label>
+            Department
+            <select id="departmentFilter">
+              <option value="">All departments</option>
+            </select>
+          </label>
+
+          <label>
+            Doctor
+            <select id="doctorFilter">
+              <option value="">All doctors</option>
+            </select>
+          </label>
+
+          <label>
+            Appointment Type
+            <select id="typeFilter">
+              <option value="">All types</option>
+            </select>
+          </label>
+
+          <label>
+            Appointment Status
+            <select id="statusFilter">
+              <option value="">All statuses</option>
+            </select>
+          </label>
+
+          <label>
+            Payment Status
+            <select id="paymentFilter">
+              <option value="">All payments</option>
+            </select>
+          </label>
+
+          <label>
+            Profile Status
+            <select id="profileFilter">
+              <option value="">All profiles</option>
+            </select>
+          </label>
+
+          <label>
+            Reminder Status
+            <select id="reminderFilter">
+              <option value="">All reminders</option>
+            </select>
+          </label>
+
+          <label>
+            SLA Status
+            <select id="slaFilter">
+              <option value="">All SLA statuses</option>
+            </select>
+          </label>
+
+          <label>
+            Assigned Staff
+            <select id="staffFilter">
+              <option value="">All staff</option>
+            </select>
+          </label>
+        </form>
+      </div>
+    </section>
+
+    <section class="section-block accordion-section" aria-labelledby="pipelineTitle">
+      <button class="accordion-trigger" type="button" aria-expanded="false" aria-controls="pipelinePanel">
+        <span class="accordion-title">
+          <span id="pipelineTitle">Appointment Pipeline</span>
+          <span>Kanban-style progress view from request intake to completion.</span>
+        </span>
+        <span class="accordion-actions">
+          <span id="filteredCount" class="count-pill">0 appointments</span>
+          <span class="accordion-icon" aria-hidden="true">v</span>
+        </span>
+      </button>
+      <div id="pipelinePanel" class="accordion-panel" hidden>
+        <div id="pipeline" class="pipeline" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="section-block accordion-section action-section" aria-labelledby="actionCenterTitle">
+      <button class="accordion-trigger" type="button" aria-expanded="false" aria-controls="actionCenterPanel">
+        <span class="accordion-title">
+          <span id="actionCenterTitle">Action Center</span>
+          <span>Appointments that require follow-up, escalation, or staff attention.</span>
+        </span>
+        <span class="accordion-icon" aria-hidden="true">v</span>
+      </button>
+      <div id="actionCenterPanel" class="accordion-panel" hidden>
+        <div id="demoMessage" class="message-area" role="status">No demo action has been triggered yet.</div>
+        <div id="actionCenter" class="action-list"></div>
+      </div>
+    </section>
+
+    <section class="section-block accordion-section" aria-labelledby="tableTitle">
+      <button class="accordion-trigger" type="button" aria-expanded="false" aria-controls="tablePanel">
+        <span class="accordion-title">
+          <span id="tableTitle">Appointment List</span>
+          <span>All filtered mock appointments in a detailed table.</span>
+        </span>
+        <span class="accordion-icon" aria-hidden="true">v</span>
+      </button>
+      <div id="tablePanel" class="accordion-panel" hidden>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Appointment ID</th>
+                <th>HN</th>
+                <th>Patient Name</th>
+                <th>Department</th>
+                <th>Doctor</th>
+                <th>Appointment Type</th>
+                <th>Current Status</th>
+                <th>Profile Status</th>
+                <th>Payment Status</th>
+                <th>Reminder Status</th>
+                <th>SLA Status</th>
+                <th>Assigned Staff</th>
+                <th>Last Updated</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="appointmentTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="detailModal" class="modal-backdrop" hidden>
+    <aside class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">Appointment Detail</p>
+          <h2 id="modalTitle">Appointment Detail</h2>
+          <p id="modalSubtitle">Mock patient appointment information</p>
+        </div>
+        <button class="icon-button" type="button" aria-label="Close detail modal" onclick="closeAppointmentDetail()">x</button>
+      </div>
+
+      <div id="modalContent" class="modal-content"></div>
+    </aside>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
